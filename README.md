@@ -3,6 +3,8 @@ This package includes demo scripts and a GUI simulation for learning stable non-
 
 [![](https://github.com/nbfigueroa/learning-ds-tutorial/blob/master/img/GUI_2.png)](https://www.youtube.com/watch?v=5fQO9Oluih0)
 
+A guided video explaining how to use the GUI can be found in this [!link](https://www.youtube.com/watch?v=5fQO9Oluih0)
+
 
 **References** 
 

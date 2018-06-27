@@ -1,16 +1,8 @@
 # learning-ds-tutorial
 This package includes demo scripts and a GUI simulation for learning stable non-linear Dynamical Systems (DS) from demonstrations using SEDS [1] and LPV-DS [2,3] approaches developed in LASA-EPFL.
 
-## Installation Instructions
-This package contains a set of submodules. In order to clone the package, just run the following run:
-```
-git clone git@github.com:epfl-lasa/RSS2018Tutorial.git
-```
-Or if the ssh access has not been set up on your PC 
-```
-git clone https://github.com/epfl-lasa/RSS2018Tutorial.git
-```
-After cloning one must intialize/download the submodules with the following commands:
+### Installation Instructions
+This package contains a set of submodules. After cloning the repo one must intialize/download the submodules with the following commands:
 ```
 cd ~./learning-ds-tutorial
 git submodule init

@@ -1,0 +1,7 @@
+[submodule "lpv-opt"]
+	path = lpv-opt
+	url = https://github.com/nbfigueroa/lpv-opt.git
+	branch = for-tutorial
+[submodule "phys-gmm"]
+	path = phys-gmm
+	url = https://github.com/nbfigueroa/phys-gmm.git

@@ -8,4 +8,4 @@ GUI for learning DS from demonstrations using SEDS [1] and LPV-DS [2,3] approach
 
 [2] Mirrazavi Salehian, S. S. (2018) Compliant control of Uni/ Multi- robotic arms with dynamical systems. PhD Thesis.
 
-[3] Under Review..
+[3] Figueroa, N and Billard, A. ".." [Under Review]

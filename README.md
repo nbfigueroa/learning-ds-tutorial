@@ -17,7 +17,8 @@ git submodule update --remote
 There are three important demo scripts:
  - ```demo_SEDS.m```: Includes commented code blocks describing all the steps needed to learn a SEDS model on self-drawn data with a GUI or data loaded from the LASA handwriting dataset [1].
  - ```demo_LPVDS.m```: Includes commented code blocks describing all the steps needed to learn an LPV-DS model on self-drawn data with a GUI or data loaded from the LASA handwriting dataset [1] with different GMM fitting options and DS parameters optimization variants. 
-- ```gui_learningDS.m```: Brings up a GUI including all options in the above script + a robot simulation (as shown below) . *A guided video explaining how to use the GUI, can be found in this [link](https://www.youtube.com/watch?v=5fQO9Oluih0)*
+- ```gui_learningDS.m```: Brings up a GUI including all options in the above script + a robot simulation (as shown below) . 
+*A guided video explaining how to use the GUI, can be found in this [link](https://www.youtube.com/watch?v=5fQO9Oluih0)*
 
 [![](https://github.com/nbfigueroa/learning-ds-tutorial/blob/master/img/GUI_2.png)](https://www.youtube.com/watch?v=5fQO9Oluih0)
 

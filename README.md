@@ -1,18 +1,6 @@
 # learning-ds-tutorial
 This package includes demo scripts and a GUI simulation for learning stable non-linear Dynamical Systems (DS) from demonstrations using SEDS [1] and LPV-DS [2,3] approaches developed in LASA-EPFL.
 
-### Installation Instructions
-This package contains a set of submodules. After cloning the repo one must initialize/download the submodules with the following commands:
-```
-cd ~./learning-ds-tutorial
-git submodule init
-git submodule update
-```
-In case you want to update the submodules to their latest version, you can do so with the following command:
-```
-git submodule update --remote
-```
-
 ### Running the demo scripts
 There are three important demo scripts:
  - ```demo_SEDS.m```: Includes commented code blocks describing all the steps needed to learn a SEDS model on self-drawn data with a GUI or data loaded from the LASA handwriting dataset [1].

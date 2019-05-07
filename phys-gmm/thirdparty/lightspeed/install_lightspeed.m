@@ -49,7 +49,7 @@ eval(['mex' flags '-c util.c']);
 libdir = '';
 if ispc
 	[compiler,options] = mexcompiler;
-	libdir = options.LIBLOC;
+% 	libdir = options.LIBLOC;
 	engmatopts = [compiler 'engmatopts.bat'];
 elseif ismac
 	options = struct;
@@ -103,10 +103,11 @@ else
     blaslib = '-lmwblas';
   end
 end
-disp(['mex' lapackflags ' solve_triu.c "' lapacklib '" "' blaslib '"'])
-eval(['mex' lapackflags ' solve_triu.c "' lapacklib '" "' blaslib '"']);
-eval(['mex' lapackflags ' solve_tril.c "' lapacklib '" "' blaslib '"']);
-
+% disp(['mex' lapackflags ' solve_triu.c "' lapacklib '" "' blaslib '"'])
+% eval(['mex' lapackflags ' solve_triu.c "' lapacklib '" "' blaslib '"']);
+% eval(['mex' lapackflags ' solve_tril.c "' lapacklib '" "' blaslib '"']);
+mex -largeArrayDims  -silent  -DBLAS64 solve_triu.c "C:\Program Files\MATLAB\R2018a\extern\lib\win64\mingw64\libmwlapack.lib"
+mex -largeArrayDims  -silent  -DBLAS64 solve_tril.c "C:\Program Files\MATLAB\R2018a\extern\lib\win64\mingw64\libmwlapack.lib"
 if ispc
   % Windows
   %if exist('util.obj','file')

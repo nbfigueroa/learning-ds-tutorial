@@ -17,5 +17,5 @@ clf
 plot(tim)
 xlabel('trial')
 ylabel('time (sec)')
-legend('sum(x,2)', 'rowsum', 'product', 'sum(x'')''', 2)
+% legend('sum(x,2)', 'rowsum', 'product', 'sum(x'')''', 2)
 tim(end,1)

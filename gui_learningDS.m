@@ -282,9 +282,10 @@ function Run_SEDS_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 Data_sh = handles.Data_sh;
-ds_gmm = handles.ds_gmm;
-att_g = handles.att_g;
-limits = handles.limits;
+ds_gmm  = handles.ds_gmm;
+att_g   = handles.att_g;
+limits  = handles.limits;
+num_K_seds = handles.num_K_seds;
 
 clear options;
 switch handles.obj_type
@@ -302,12 +303,13 @@ options.tol_stopping=10^-9;   % A small positive scalar defining the stoppping
 options.max_iter = 500;       % Maximum number of iteration forthe solver [default: i_max=1000]
 
 
-[Priors, Mu, Sigma]= SEDS_Solver(ds_gmm.Priors, ds_gmm.Mu, ds_gmm.Sigma, Data_sh,options); %running SEDS optimization solver
-ds_seds = @(x) GMR_SEDS(Priors,Mu,Sigma,x,1:2,3:4);
+ds_gmm.Priors
+ds_gmm.Mu
+ds_gmm.Sigma
 
-ds_gmm.Priors = Priors';
-ds_gmm.Mu = Mu;
-ds_gmm.Sigma = Sigma;
+[Priors, Mu, Sigma]= SEDS_Solver(ds_gmm.Priors, ds_gmm.Mu, ds_gmm.Sigma, Data_sh,options); %running SEDS optimization solver
+clear ds_seds
+ds_seds = @(x) GMR_SEDS(Priors,Mu,Sigma,x,1:2,3:4);
 
 %%%%%%%%%%%%%%    Plot Resulting DS  %%%%%%%%%%%%%%%%%%%
 % Create DS function handle
@@ -320,8 +322,8 @@ h_ds = plot_ds_model(hObject, ds_seds, att_g, limits,'medium');
 handles.h_ds    = h_ds;
 handles.ds_fun  = ds_seds;
 handles.ds_gmm  = ds_gmm; 
+handles.num_K_seds = num_K_seds;
 guidata(hObject, handles);
-
 
 
 function edit8_Callback(hObject, eventdata, handles)
@@ -476,7 +478,7 @@ end
 est_K      = length(Priors0) ;
 Priors = Priors0; Mu = Mu0; Sigma = Sigma0;
 [~, est_labels] =  my_gmm_cluster(Data(1:2,:), Priors, Mu, Sigma, 'hard', []);
-fprintf ('Optimal number of Gaussians K=%d\n', est_K);
+fprintf ('****** Optimal number of Gaussians K=%d ******\n', est_K);
 
 %%% Visualize GMM pdf from learnt parameters
 clear ds_gmm; ds_gmm.Mu = Mu; ds_gmm.Sigma = Sigma; 
@@ -511,6 +513,7 @@ function checkbox6_Callback(hObject, eventdata, handles)
 
 
 % --- Executes on button press in pushbutton7.
+% --- GMM initialization for SEDS --- %
 function pushbutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -519,13 +522,16 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 Data_sh = handles.Data_sh;
 if isfield(handles,'num_K_seds')
     num_K_seds = handles.num_K_seds;
-else
-    num_K_seds = [];
 end
 sample = 1;
 switch handles.init_type
     case 'Manual'        
         %finding an initial guess for GMM's parameter
+        if (num_K_seds > 15)
+            warning ('!!!!!! Maximum Number of Gaussians K=15, setting to K=15 !!!!!!');
+            num_K_seds = 15;
+        end
+            
         [Priors_0, Mu_0, Sigma_0] = initialize_SEDS(Data_sh(:,1:sample:end),num_K_seds);
                       
     case 'Model Selection'
@@ -534,15 +540,14 @@ switch handles.init_type
         est_options.maxK        = 15;  % Maximum Gaussians for Type 1/2
         est_options.do_plots    = 0;   % Plot Estimation Statistics
         est_options.fixed_K     = [];   % Fix K and estimate with EM
-        est_options.exp_scaling = [];
+        est_options.sub_sample  = 1;   % Size of sub-sampling of trajectories
         
-        % Discover Local Models        
-        [Priors0, Mu0, Sigma0] = discover_local_models(Data_sh(:,1:sample:end), Data_sh(2:4,1:sample:end), est_options);
-        nb_gaussians = length(Priors0);                
-        
+        [Priors0, ~, ~] = fit_gmm(Data_sh(:,1:sample:end), [], est_options);
+        nb_gaussians = length(Priors0);
+        fprintf ('Optimal K=%d with EM-Model Selection',nb_gaussians);
         %finding an initial guess for GMM's parameter
         [Priors_0, Mu_0, Sigma_0] = initialize_SEDS(Data_sh(:,1:sample:end),nb_gaussians);
-        
+        num_K_seds = nb_gaussians;
 end
 
 if isfield(handles, 'h_gmm')
@@ -552,21 +557,20 @@ if isfield(handles, 'h_gmm')
     delete(h_ctr)
 end
 
-[~, est_labels] =  my_gmm_cluster(Data_sh(1:2,:), Priors_0, Mu_0(1:2,:), Sigma_0(1:2,1:2,:), 'hard', []);
+[~, est_labels]   =  my_gmm_cluster(Data_sh(1:2,:), Priors_0, Mu_0(1:2,:), Sigma_0(1:2,1:2,:), 'hard', []);
 [~, h_gmm, h_ctr] =  plotGMMParameters( Data_sh(1:2,:), est_labels, Mu_0(1:2,:) + repmat(handles.att_g,[1 size(Mu_0,2)]), Sigma_0(1:2,1:2,:), hObject);
 
-clear ds_gm
+clear ds_gmm
 ds_gmm.Priors = Priors_0;
 ds_gmm.Mu = Mu_0;
 ds_gmm.Sigma = Sigma_0;
 
 handles.ds_type = 'seds';
+handles.num_K_seds = num_K_seds;
 handles.ds_gmm = ds_gmm;
 handles.h_gmm = h_gmm;
 handles.h_ctr = h_ctr;
 guidata(hObject, handles);
-
-
 
 
 % --- Executes on button press in checkbox5.
@@ -756,7 +760,7 @@ att_g = mean(x0_end,2);
 
 % Position/Velocity Trajectories
 delete(hp)
-[h_data, h_att, h_vel] = plot_reference_trajectories(Data, att_g, [], 10);
+[h_data, h_att, h_vel] = plot_reference_trajectories_DS_GUI(Data, att_g, 10, 0.5);
 grid on;
 box on;
 title('Demonstrated Trajectories','Interpreter','LaTex','FontSize',20);

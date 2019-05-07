@@ -4,10 +4,10 @@ test_gammaln
 test_trigamma
 test_int_hist
 %test_inv_posdef
-test_java
+% test_java
 test_logmulexp
 test_logsumexp
-test_mutable
+% test_mutable
 %test_ndsum
 %test_normcdf
 test_normpdf

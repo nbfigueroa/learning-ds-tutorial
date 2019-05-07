@@ -44,7 +44,8 @@ close all; clear all; clc
 % 12: Sink Dataset      (test)  (3D) -- 21 trajectories recorded at 100Hz
 % 13: Bumpy-Snake Dataset (test)(3D) -- 10 trajectories recorded at 100Hz
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pkg_dir         = '/home/nbfigueroa/Dropbox/PhD_papers/CoRL-2018/code/phys-gmm/';
+% pkg_dir         = '/home/nbfigueroa/Dropbox/PhD_papers/CoRL-2018/code/phys-gmm/';
+pkg_dir         = '.';
 chosen_dataset  = 1; 
 sub_sample      = 1; % '>2' for real 3D Datasets, '1' for 2D toy datasets
 nb_trajectories = 7; % For real 3D data

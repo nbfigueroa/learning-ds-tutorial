@@ -39,33 +39,21 @@ close all; clear all; clc
 % 8:  CShape bottom         (3D) * 16 trajectories recorded at 100Hz
 % 9:  CShape top            (3D) --12 trajectories recorded at 100Hz
 % 10: CShape all            (3D) -- x trajectories recorded at 100Hz
-% 11: Flat-C for loco-manip (2D) * 3 trajectories recorded at 100Hz (downsampled to 50Hz)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 pkg_dir         = '/home/nbfigueroa/Dropbox/PhD_papers/CoRL-2018/code/ds-opt/';
-chosen_dataset  = 9; 
-sub_sample      = 5; % '>2' for real 3D Datasets, '1' for 2D toy datasets
+chosen_dataset  = 3; 
+sub_sample      = 1; % '>2' for real 3D Datasets, '1' for 2D toy datasets
 nb_trajectories = 3; % For real 3D data only
 [Data, Data_sh, att, x0_all, data, dt] = load_dataset_DS(pkg_dir, chosen_dataset, sub_sample, nb_trajectories);
 
 % Position/Velocity Trajectories
-vel_samples = 50; vel_size = 0.75; 
+vel_samples = 10; vel_size = 0.5; 
 [h_data, h_att, h_vel] = plot_reference_trajectories_DS(Data, att, vel_samples, vel_size);
 
 % Extract Position and Velocities
 M          = size(Data,1)/2;    
 Xi_ref     = Data(1:M,:);
 Xi_dot_ref = Data(M+1:end,:);   
-
-%% %%%%%%%%%%%% [Optional] Load pre-learned lpv-DS model from Mat file  %%%%%%%%%%%%%%%%%%%
-% DS_name = '/3D-Sink/3D-Sink_pqlf_2';
-DS_name = '3D-Via-point_pqlf_2';
-matfile = strcat(pkg_dir,'/models/', DS_name,'.mat');
-load(matfile)
-if constr_type == 1
-    ds_lpv = @(x) lpv_ds(x-repmat(att,[1 size(x,2)]), ds_gmm, A_g, b_g);
-else
-    ds_lpv = @(x) lpv_ds(x, ds_gmm, A_k, b_k);
-end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1 - OPTION 2 (DATA LOADING): Load Motions from LASA Handwriting Dataset %%
@@ -95,7 +83,7 @@ Xi_dot_ref = Data(M+1:end,:);
 % 1: GMM-EM Model Selection via BIC
 % 2: CRP-GMM (Collapsed Gibbs Sampler)
 est_options = [];
-est_options.type             = 1;   % GMM Estimation Alorithm Type   
+est_options.type             = 0;   % GMM Estimation Alorithm Type   
 
 % If algo 1 selected:
 est_options.maxK             = 10;  % Maximum Gaussians for Type 1
@@ -107,7 +95,7 @@ est_options.samplerIter      = 50;  % Maximum Sampler Iterations
                                     % For type 2: >100 iter are needed
                                     
 est_options.do_plots         = 1;   % Plot Estimation Statistics
-est_options.sub_sample       = 5;   % Size of sub-sampling of trajectories
+est_options.sub_sample       = 2;   % Size of sub-sampling of trajectories
                                     % 1/2 for 2D datasets, >2/3 for real    
 % Metric Hyper-parameters
 est_options.estimate_l       = 1;   % '0/1' Estimate the lengthscale, if set to 1
@@ -161,12 +149,12 @@ if constr_type == 0 || constr_type == 1
     P_opt = eye(M);
 else
     % P-matrix learning
-%     [Vxf] = learn_wsaqf(Data,0,att);
+    [Vxf] = learn_wsaqf(Data,0,att);
    
     % (Data shifted to the origin)
     % Assuming origin is the attractor (works better generally)
-    [Vxf] = learn_wsaqf(Data_sh);
-    P_opt = Vxf.P;
+%     [Vxf] = learn_wsaqf(Data_sh);
+%     P_opt = Vxf.P;
 end
 
 %%%%%%%%  LPV system sum_{k=1}^{K}\gamma_k(xi)(A_kxi + b_k) %%%%%%%%  
@@ -198,20 +186,7 @@ switch constr_type
     case 2
         title('GMM-based LPV-DS with P-QLF', 'Interpreter','LaTex','FontSize',20)
 end
-axis fit;
-%% %%%%%%%%%%%%   Export DS parameters to Mat/Txt/Yaml files  %%%%%%%%%%%%%%%%%%%
-DS_name = '2d-U-Nav';
-save_lpvDS_to_Mat(DS_name, pkg_dir, ds_gmm, A_k, b_k, att, x0_all, dt, P_est, constr_type, est_options)
 
-%% Save LPV-DS parameters to text files
-DS_name = '3D-CShape-top-pqlf-2';
-save_lpvDS_to_txt(DS_name, pkg_dir,  ds_gmm, A_k, att)
-
-%% Save LPV-DS parameters to yaml file
-DS_name = 'iCub-CshapeRotated-Loco';
-% To use the rest of the code you need a matlab yaml convertor
-% you can get it from here: http://vision.is.tohoku.ac.jp/~kyamagu/software/yaml/
-save_lpvDS_to_Yaml(DS_name, pkg_dir,  ds_gmm, A_k, att, x0_all, dt)
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%   Step 4 (Evaluation): Compute Metrics and Visualize Velocities %%

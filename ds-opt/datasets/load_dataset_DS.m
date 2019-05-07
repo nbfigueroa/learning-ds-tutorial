@@ -21,9 +21,7 @@ switch dataset
     case 9
         dataset_name = '3D_Cshape_top.mat';                       
     case 10
-        dataset_name = '3D-pick-box.mat';       
-    case 11
-        dataset_name = 'iCubHuman_demos.mat';       
+        dataset_name = '3D-pick-box.mat';            
 end
 
 if isempty(sub_sample)

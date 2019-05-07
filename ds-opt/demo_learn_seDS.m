@@ -56,12 +56,6 @@ M          = size(Data,1)/2;
 Xi_ref     = Data_sh(1:M,:);
 Xi_dot_ref = Data_sh(M+1:end,:);     
 
-%% %%%%%%%%%%%% [Optional] Load pre-learned SEDS model from Mat file  %%%%%%%%%%%%%%%%%%%
-DS_name = '3D-CShape-bottom/3D-CShape-bottom_seds';
-matfile = strcat(pkg_dir,'/models/', DS_name,'.mat');
-load(matfile)
-ds_seds = @(x) GMR_SEDS(Priors,Mu,Sigma,x-repmat(att,[1 size(x,2)]),1:M,M+1:2*M);
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1 - OPTION 2 (DATA LOADING): Load Motions from LASA Handwriting Dataset %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,7 +82,7 @@ Xi_dot_ref = Data_sh(M+1:end,:);
 % 'seds-init': follows the initialization given in the SEDS code
 % 0: Manually set the # of Gaussians
 % 1: Do Model Selection with BIC
-do_ms_bic = 0;
+do_ms_bic = 1;
 
 if do_ms_bic
     est_options = [];
@@ -127,8 +121,8 @@ options.display       = 1;        % An option to control whether the algorithm
                                   % displays the output of each iterations [default: true]                            
 options.tol_stopping  = 10^-6;    % A small positive scalar defining the stoppping
                                   % tolerance for the optimization solver [default: 10^-10]
-options.max_iter      = 1000;     % Maximum number of iteration forthe solver [default: i_max=1000]
-options.objective     = 'likelihood'; % 'mse'/'likelihood'
+options.max_iter      = 500;     % Maximum number of iteration forthe solver [default: i_max=1000]
+options.objective     = 'mse'; % 'mse'/'likelihood'
 sub_sample            = 1;
 
 %running SEDS optimization solver
@@ -153,14 +147,6 @@ switch options.objective
     case 'likelihood'
         title('SEDS Dynamics with $J(\theta_{\gamma})$= log-Likelihood', 'Interpreter','LaTex','FontSize',20)
 end
-
-%% %%%%%%%%%%%%   Export SEDS model parameters to Mat/Yaml files  %%%%%%%%%%%%%%%%%%%
-DS_name = '3D-pick-box_seds-24';
-save_seDS_to_Mat(DS_name, pkg_dir, Priors0, Mu0, Sigma0, Priors, Mu, Sigma, att, x0_all, dt, options,est_options)
-
-% To use the rest of the code you need a matlab yaml convertor
-% you can get it from here: http://vision.is.tohoku.ac.jp/~kyamagu/software/yaml/
-save_seDS_to_Yaml(DS_name, pkg_dir, Priors, Mu, Sigma, att, x0_all, dt)
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%   Step 4 (Evaluation): Compute Metrics and Visualize Velocities %%
